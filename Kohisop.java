@@ -34,37 +34,38 @@ public class Kohisop {
     }
 
     public static void main(String[] args) {
-        System.out.println("==========================");
-        System.out.println("Selamat datang di KohiSop!");
-        System.out.println("==========================");
-
-        while (true) {
-            System.out.print("\nMasukkan nama pelanggan \n(ketik 'EXIT' untuk keluar): ");
-            String namaPelanggan = scanner.nextLine().trim();
-            if (namaPelanggan.equalsIgnoreCase("EXIT")) {
-                System.out.println("Program selesai.");
-                break;
-            }
-            Member member = cariAtauBuatMember(namaPelanggan);
-            JumlahOrderMinuman = 0;
-            JumlahOrderMakanan = 0;
-            for (int i = 0; i < MAKS_PESAN_PER_KATEGORI; i++) {
-                OrderMinuman[i] = null;
-                OrderMakanan[i] = null;
-            }
-            boolean order = ProsesOrder();
-            if (order) {
-                double totalHarga = hitungTotalHarga(member);
-                MetodePembayaran metodePembayaran = piliMetodePembayaran(totalHarga);
-                Currency currency = selectCurrency();
-                cetakKuitansi(metodePembayaran, currency, member);
-                jumlahPelanggan++;
-                prosesDapur();
-            } else {
-                System.out.println("Pesanan dibatalkan. Terima kasih telah mengunjungi KohiSop.");
+        try (scanner) {
+            System.out.println("==========================");
+            System.out.println("Selamat datang di KohiSop!");
+            System.out.println("==========================");
+            
+            while (true) {
+                System.out.print("\nMasukkan nama pelanggan \n(ketik 'EXIT' untuk keluar): ");
+                String namaPelanggan = scanner.nextLine().trim();
+                if (namaPelanggan.equalsIgnoreCase("EXIT")) {
+                    System.out.println("Program selesai.");
+                    break;
+                }
+                Member member = cariAtauBuatMember(namaPelanggan);
+                JumlahOrderMinuman = 0;
+                JumlahOrderMakanan = 0;
+                for (int i = 0; i < MAKS_PESAN_PER_KATEGORI; i++) {
+                    OrderMinuman[i] = null;
+                    OrderMakanan[i] = null;
+                }
+                boolean order = ProsesOrder();
+                if (order) {
+                    double totalHarga = hitungTotalHarga(member);
+                    MetodePembayaran metodePembayaran = piliMetodePembayaran(totalHarga);
+                    Currency currency = selectCurrency();
+                    cetakKuitansi(metodePembayaran, currency, member);
+                    jumlahPelanggan++;
+                    prosesDapur();
+                } else {
+                    System.out.println("Pesanan dibatalkan. Terima kasih telah mengunjungi KohiSop.");
+                }
             }
         }
-        scanner.close();
     }
 
     private static double hitungTotalHarga(Member member) {
@@ -219,8 +220,8 @@ public class Kohisop {
     private static void TampilanOrder() {
         if (JumlahOrderMinuman > 0) {
             System.out.println("\nDaftar Pesanan Minuman:");
-            System.out.println("Kode | Minuman                              | Kuantitas");
-            System.out.println("-------------------------------------------------------");
+            System.out.println("Kode | Minuman                              | Harga | Kuantitas");
+            System.out.println("--------------------------------------------------------------------");
 
             Order[] tempMinuman = new Order[JumlahOrderMinuman];
             System.arraycopy(OrderMinuman, 0, tempMinuman, 0, JumlahOrderMinuman);
@@ -228,15 +229,15 @@ public class Kohisop {
 
             for (int i = 0; i < JumlahOrderMinuman; i++) {
                 Order order = tempMinuman[i];
-                System.out.printf("%-4s | %-35s | %d\n", order.getItem().getKode(), order.getItem().getNama(),
-                        order.getKuantitas());
+                System.out.printf("%-4s | %-35s | %7d | %9d\n", order.getItem().getKode(), order.getItem().getNama(),
+                        order.getItem().getHarga(), order.getKuantitas());
             }
         }
 
         if (JumlahOrderMakanan > 0) {
             System.out.println("\nDaftar Pesanan Makanan:");
-            System.out.println("Kode | Makanan                              | Kuantitas");
-            System.out.println("-------------------------------------------------------");
+            System.out.println("Kode | Makanan                              | Harga | Kuantitas");
+            System.out.println("--------------------------------------------------------------------");
 
             Order[] tempMakanan = new Order[JumlahOrderMakanan];
             System.arraycopy(OrderMakanan, 0, tempMakanan, 0, JumlahOrderMakanan);
@@ -244,8 +245,8 @@ public class Kohisop {
 
             for (int i = 0; i < JumlahOrderMakanan; i++) {
                 Order order = tempMakanan[i];
-                System.out.printf("%-4s | %-35s | %d\n", order.getItem().getKode(), order.getItem().getNama(),
-                        order.getKuantitas());
+                System.out.printf("%-4s | %-35s | %7d | %9d\n", order.getItem().getKode(), order.getItem().getNama(),
+                        order.getItem().getHarga(), order.getKuantitas());
             }
         }
     }
@@ -274,7 +275,7 @@ public class Kohisop {
                             return new QRIS();
                         } else {
                             System.out.println("saldo anda kurang untuk melakukan pembayaran");
-                            continue;
+                            continue; // Kembali ke pemilihan metode pembayaran
                         }
                     }
                     case 3 -> {
@@ -285,7 +286,7 @@ public class Kohisop {
                             return new EMoney();
                         } else {
                             System.out.println("saldo anda kurang untuk melakukan pembayaran");
-                            continue;
+                            continue; // Kembali ke pemilihan metode pembayaran
                         }
                     }
                     default -> System.out.println("Pilihan tidak valid! Harap masukkan angka 1-3.");
@@ -374,7 +375,7 @@ public class Kohisop {
             Order[] tempMinuman = new Order[JumlahOrderMinuman];
             System.arraycopy(OrderMinuman, 0, tempMinuman, 0, JumlahOrderMinuman);
             Arrays.sort(tempMinuman, (a, b) -> Integer.compare(b.getItem().getHarga(), a.getItem().getHarga()));
-            
+
             for (int i = 0; i < JumlahOrderMinuman; i++) {
                 Order order = tempMinuman[i];
                 double lihatJumlahPajak = order.getJumlahPajak(member);
@@ -382,8 +383,8 @@ public class Kohisop {
                         order.getItem().getKode(), order.getItem().getNama(),
                         order.getItem().getHarga(), order.getKuantitas(),
                         order.getTotalHarga(), lihatJumlahPajak);
-                subtotalMakanan += order.getTotalHarga();
-                totalPajakMakanan += lihatJumlahPajak;
+                subtotalMinuman += order.getTotalHarga();
+                totalPajakMinuman += lihatJumlahPajak;
             }
         }
 
@@ -407,7 +408,7 @@ public class Kohisop {
 
         System.out.println("\n---------------------------------------------------");
         System.out.printf("Subtotal Minuman                : %14.0f IDR\n", subtotalMinuman);
-        System.out.printf("Pajak Minuman                   : %14.0f IDR\n", totalPajakMinuman);
+        System.out.printf("Pajak minuman                   : %14.0f IDR\n", totalPajakMinuman);
         System.out.printf("Subtotal Makanan                : %14.0f IDR\n", subtotalMakanan);
         System.out.printf("Pajak Makanan                   : %14.0f IDR\n", totalPajakMakanan);
         System.out.println("---------------------------------------------------");
@@ -415,7 +416,7 @@ public class Kohisop {
         System.out.printf("Total pajak                     : %14.0f IDR\n", totalPajak);
         System.out.printf("Total dengan pajak              : %14.0f IDR\n", lihatTotalDenganPajak);
         System.out.println("---------------------------------------------------");
-        System.out.printf("Metode Pembayaran               : %s\n", metodePembayaran.getNama());
+        System.out.printf("Metode Pembayaran                   : %s\n", metodePembayaran.getNama());
         System.out.printf("Diskon                          : %14.0f IDR (%.0f%%)\n",
                 JumlahDiskon, metodePembayaran.getDiskon() * 100);
         if (adminFee > 0) {
