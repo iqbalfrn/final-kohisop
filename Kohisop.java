@@ -356,14 +356,13 @@ public class Kohisop {
 
             for (int i = 0; i < JumlahOrderMakanan; i++) {
                 Order order = tempMakanan[i];
-                double pajakPerItem = order.getItem().Pajak();
-                double totalPajakItem = (order.getTotalHarga() * pajakPerItem) * order.getKuantitas();
+                double lihatJumlahPajak = order.getJumlahPajak(member);
                 System.out.printf("%-4s | %-30s | %6d | %3d | %6d | %5.0f\n",
                         order.getItem().getKode(), order.getItem().getNama(),
                         order.getItem().getHarga(), order.getKuantitas(),
-                        order.getTotalHarga(), totalPajakItem);
+                        order.getTotalHarga(), lihatJumlahPajak);
                 subtotalMakanan += order.getTotalHarga();
-                totalPajakMakanan += totalPajakItem;
+                totalPajakMakanan += lihatJumlahPajak;
             }
         }
 
@@ -375,17 +374,16 @@ public class Kohisop {
             Order[] tempMinuman = new Order[JumlahOrderMinuman];
             System.arraycopy(OrderMinuman, 0, tempMinuman, 0, JumlahOrderMinuman);
             Arrays.sort(tempMinuman, (a, b) -> Integer.compare(b.getItem().getHarga(), a.getItem().getHarga()));
-
+            
             for (int i = 0; i < JumlahOrderMinuman; i++) {
                 Order order = tempMinuman[i];
-                double pajakPerItem = order.getItem().Pajak();
-                double totalPajakItem = (order.getTotalHarga() * pajakPerItem) * order.getKuantitas();
+                double lihatJumlahPajak = order.getJumlahPajak(member);
                 System.out.printf("%-4s | %-30s | %6d | %3d | %6d | %5.0f\n",
                         order.getItem().getKode(), order.getItem().getNama(),
                         order.getItem().getHarga(), order.getKuantitas(),
-                        order.getTotalHarga(), totalPajakItem);
-                subtotalMinuman += order.getTotalHarga();
-                totalPajakMinuman += totalPajakItem;
+                        order.getTotalHarga(), lihatJumlahPajak);
+                subtotalMakanan += order.getTotalHarga();
+                totalPajakMakanan += lihatJumlahPajak;
             }
         }
 
